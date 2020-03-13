@@ -13,11 +13,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 public class index {
+    static     String    lujing = "file.c";   //文件的路径,未选取的时候默认为file.c文件
     public static void main(String[] args) {
         //设置主界面
         JFrame mainFrame= new JFrame("WC.exe");
@@ -35,43 +37,58 @@ public class index {
         JButton danci = new JButton("wc.exe -w(单词数) ");
         JButton hangshu = new JButton("wc.exe -l(行数)");
         JButton a = new JButton("-a(代码行，注释行，空行)");
+        JButton wenjian= new JButton("选取文件(不使用该功能则默认统计项目内file.c)");
         controlPanel.add(zifu);
         controlPanel.add(hangshu);
         controlPanel.add(danci);
         controlPanel.add(a);
+        controlPanel.add(wenjian);
         //将按钮放入主界面
         mainFrame.add(controlPanel);
         mainFrame.setVisible(true);
 
-        //统计file文档的行数
+        //统计文件的行数
         hangshu.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int  k=line("file.c");
-                JOptionPane.showMessageDialog(null, "file文件里面的行数为"+k);
+                int  k=line(lujing);
+                JOptionPane.showMessageDialog(null, "文件里面的行数为"+k);
 
             }});
 
-        //统计file文档的字符数
+        //统计文件的字符数
         zifu.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int  k=zifu("file.c");
-                JOptionPane.showMessageDialog(null, "file文件里面的字符数为"+k+"（包括空格不包括回车）");
+                int  k=zifu(lujing);
+                JOptionPane.showMessageDialog(null, "文件里面的字符数为"+k+"（包括空格不包括回车）");
 
             }});
 
-        //统计file文档的单词数
+        //统计文件的单词数
         danci.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int  k=word("file.c");
-                JOptionPane.showMessageDialog(null, "file文件里面的单词数为"+k);
+                int  k=word(lujing);
+                JOptionPane.showMessageDialog(null, "文件里面的单词数为"+k);
 
             }});
 
-
+ //统计文件里的空白行，注释行和代码行
         a.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                a("file.c");
+                a(lujing);
 
+
+            }});
+
+        wenjian.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser(); //设置选择器
+                chooser.setMultiSelectionEnabled(true); //设为多选
+                int returnVal = chooser.showOpenDialog(wenjian); //是否打开文件选择框
+                System.out.println("returnVal="+returnVal);
+                if (returnVal == JFileChooser.APPROVE_OPTION) { //如果符合文件类型
+
+                   lujing =  chooser.getSelectedFile().getAbsolutePath();
+                }
 
             }});
 
@@ -79,12 +96,7 @@ public class index {
 
 
 
-
-
-
-
-
-    //统计file文档的字符数
+    //统计文件的字符数
     private static int zifu(String filename) {
 
         File file=new File(filename);
@@ -92,12 +104,11 @@ public class index {
         int character=0;
         try{
             reader = new BufferedReader(new FileReader(file));
-            int tempchar;
-            while ((tempchar=reader.read()) != -1) {
-                if((char)tempchar!='\r'&&(char)tempchar!='\n'){
-                    character++;
-                }
+            String tempchar;
+            while ((tempchar=reader.readLine()) != null) {
+                character +=  tempchar.length();
             }
+
             reader.close();
         }
         catch(Exception e){
@@ -107,8 +118,7 @@ public class index {
     }
 
 
-
-    //统计file文档的单词数
+    //统计文件的单词数
     public static int word(String fileName) {
         File file = new File(fileName);
         int word = 0;
@@ -233,7 +243,7 @@ public class index {
                 }
             }
         }
-        JOptionPane.showMessageDialog(null, "file文件里面的空白行为"+blankcount+"\n代码行为"+codecount+"\n注释行为"+notescount);
+        JOptionPane.showMessageDialog(null, "文件里面的空白行为"+blankcount+"\n代码行为"+codecount+"\n注释行为"+notescount);
 
     }
     //去除字符串中指定字符
